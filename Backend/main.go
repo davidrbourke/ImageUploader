@@ -7,9 +7,11 @@ import (
 )
 
 func uploadFile(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+
 	fmt.Println("File upload endpoint hit")
 	r.ParseMultipartForm(10 << 20)
-	file, handler, err := r.FormFile("myFile")
+	file, handler, err := r.FormFile("uploadedFile")
 	if err != nil {
 		fmt.Println("Error retrieving the file")
 		fmt.Println(err)
@@ -45,4 +47,8 @@ func setupRoutes() {
 func main() {
 	fmt.Println("Starting file uploader")
 	setupRoutes()
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
