@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/davidrbourke/ImageUploader/Backend/utils"
 )
 
 func GetImages(w http.ResponseWriter, r *http.Request) {
-	// enableCors(&w)
+	utils.EnableCors(&w)
 
 	fmt.Println("get images endpoint hit")
 

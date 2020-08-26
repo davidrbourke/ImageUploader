@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import { uploadFile } from './../api/index'
+import FileList from './FileList'
 
 const FileUpload = () => {
 
   const [selectedFile, setSelectedFile] = useState(null)
+  const [previewImage, setPreviewImage] = useState(null)
+  const [imageName, setImageName] = useState('')
+  const [imageUploaded, setImageUploaded] = useState(false)
 
   const onFileChange = (event) => {
     console.log(event)
     setSelectedFile(event.target.files[0])
+    setPreviewImage(URL.createObjectURL(event.target.files[0]))
   }
 
   const onSubmitClick = (event) => {
@@ -18,14 +24,17 @@ const FileUpload = () => {
       selectedFile.name
     )
 
-    const options = {
-      method: "POST",
-      body: form
-    }
+    uploadFile(form)
+      .then(() => {
+        setImageName('')
+        setPreviewImage(null)
+        setSelectedFile(null)
+        setImageUploaded(true)
+      })
+  }
 
-    fetch("http://localhost:8080/upload", options)
-      .then(() => console.log("uploaded"))
-      .catch((err) => console.log(err))
+  const canSubmit = () => {
+    return selectedFile !== null && imageName !== ''
   }
 
   return (
@@ -35,8 +44,20 @@ const FileUpload = () => {
         <input type="file" onChange={onFileChange} />
       </div>
       <div>
-        <input type="button" onClick={onSubmitClick} value="Submit" />
+        { selectedFile !== null &&
+        <p>You must select Submit to upload the image.</p>
+        }
+        <input type="button" onClick={onSubmitClick} value="Submit" disabled={!canSubmit()} />
       </div>
+      <div>
+        <span>Image file name</span>
+        <input type="text" value={imageName} onChange={(e) => setImageName(e.target.value)} />
+        <img src={previewImage} aria-label="A preview of the image to be uploaded"/>
+      </div>
+      { imageUploaded === true &&
+      <p>Image uploaded</p>
+      }
+      <FileList />
     </div>
   )
 }
