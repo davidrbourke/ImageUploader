@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/davidrbourke/ImageUploader/Backend/images"
 )
 
 func uploadFile(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +42,9 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func setupRoutes() {
+	http.HandleFunc("/images", images.GetImages)
 	http.HandleFunc("/upload", uploadFile)
+
 	http.ListenAndServe(":8080", nil)
 }
 
