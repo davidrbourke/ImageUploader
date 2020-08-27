@@ -38,5 +38,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	tempFile.Write(fileBytes)
 
+	UploadToStorageSccount(tempFile.Name())
+
 	fmt.Fprintf(w, "Successfully uploaded file\n")
 }
