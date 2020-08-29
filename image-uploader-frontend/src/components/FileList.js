@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { getFilenames } from './../api'
+import React from 'react'
 
-const FileList = () => {
-
-  const [filenames, setFilenames] = useState([])
-
-  useEffect(() => {
-    getFilenames()
-      .then((fileList) => {
-        console.log(fileList)
-        setFilenames(fileList)
-      })
-  }, [])
-
+const FileList = ({ filenames }) => {
+  console.log(filenames)
   return (
     <div>
       <ol>
-      {filenames.map((filename) => <li>{filename}</li>)}
+      {filenames.map((filename) => <li key={filename}>{filename}</li>)}
       </ol>
     </div>
   )

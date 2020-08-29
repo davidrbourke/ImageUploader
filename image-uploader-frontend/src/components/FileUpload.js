@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
-import { uploadFile } from './../api/index'
-import FileList from './FileList'
 
-const FileUpload = () => {
+const FileUpload = ({ onUpload, isUploaded }) => {
 
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
@@ -10,13 +8,11 @@ const FileUpload = () => {
   const [imageUploaded, setImageUploaded] = useState(false)
 
   const onFileChange = (event) => {
-    console.log(event)
     setSelectedFile(event.target.files[0])
     setPreviewImage(URL.createObjectURL(event.target.files[0]))
   }
 
   const onSubmitClick = (event) => {
-    console.log(selectedFile)
     const form = new FormData();
     form.append(
       "uploadedFile",
@@ -24,7 +20,7 @@ const FileUpload = () => {
       selectedFile.name
     )
 
-    uploadFile(form)
+    onUpload(form)
       .then(() => {
         setImageName('')
         setPreviewImage(null)
@@ -52,12 +48,13 @@ const FileUpload = () => {
       <div>
         <span>Image file name</span>
         <input type="text" value={imageName} onChange={(e) => setImageName(e.target.value)} />
-        <img src={previewImage} aria-label="A preview of the image to be uploaded"/>
+        { previewImage != null &&
+        <img src={previewImage} alt="A preview of bakery item to be uploaded"/>
+        }
       </div>
       { imageUploaded === true &&
       <p>Image uploaded</p>
       }
-      <FileList />
     </div>
   )
 }
