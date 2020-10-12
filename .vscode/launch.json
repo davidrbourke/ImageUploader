@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "Launch",
+          "type": "go",
+          "request": "launch",
+          "mode": "auto",
+          "program": "D:/dev/GoWorkspace/src/github.com/davidrbourke/ImageUploader/Backend/main.go",
+          "env": {},
+          "args": []
+      }
+  ]
+}

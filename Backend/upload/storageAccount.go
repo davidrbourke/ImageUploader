@@ -3,20 +3,18 @@ package upload
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net/url"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
+	"github.com/davidrbourke/ImageUploader/Backend/utils"
 	"golang.org/x/net/context"
 )
 
-func randomString() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return strconv.Itoa(r.Int())
-}
+// func randomString() string {
+// 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+// 	return strconv.Itoa(r.Int())
+// }
 
 func handleErrors(err error) {
 	if err != nil {
@@ -31,9 +29,18 @@ func handleErrors(err error) {
 	}
 }
 
-func UploadToStorageSccount(uploadFilename string) {
-	accountName := ""
-	accountKey := ""
+// ToStorageAccount sends an image file to the azure storage account
+func ToStorageAccount(uploadFilename string) {
+
+	accountName, err := utils.GetStorageAccountName()
+	if err != nil {
+		panic(err)
+	}
+
+	accountKey, err := utils.GetStorageAccountKey()
+	if err != nil {
+		panic(err)
+	}
 
 	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
 	if err != nil {
@@ -42,7 +49,7 @@ func UploadToStorageSccount(uploadFilename string) {
 
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
 
-	containerName := fmt.Sprintf("qs-image-%s", randomString())
+	containerName := "qs-image"
 
 	URL, _ := url.Parse(
 		fmt.Sprintf("https://%s.blob.core.windows.net/%s", accountName, containerName))
@@ -61,6 +68,13 @@ func UploadToStorageSccount(uploadFilename string) {
 		Parallelism: 16})
 	handleErrors(err)
 
-	file.Close()
-	os.Remove(uploadFilename)
+	err = file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.Remove(uploadFilename)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

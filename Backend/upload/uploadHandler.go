@@ -1,13 +1,17 @@
 package upload
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/davidrbourke/ImageUploader/Backend/utils"
 )
 
+// UploadFile api end point handler for uploading an image file
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(&w)
 
@@ -25,20 +29,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("File size: %+v\n", handler.Size)
 	fmt.Printf("MIME header: %+v\n", handler.Header)
 
-	tempFile, err := ioutil.TempFile("temp-images", "upload-*.png")
+	//tempFile, err := ioutil.TempFile("temp-images", handler.Filename)
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile("temp-images/"+handler.Filename, buf.Bytes(), 666)
+
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer tempFile.Close()
 
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	tempFile.Write(fileBytes)
-
-	UploadToStorageSccount(tempFile.Name())
+	ToStorageAccount("temp-images/" + handler.Filename)
 
 	fmt.Fprintf(w, "Successfully uploaded file\n")
 }
