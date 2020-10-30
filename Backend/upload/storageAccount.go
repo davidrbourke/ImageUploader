@@ -27,31 +27,8 @@ func handleErrors(err error) {
 // ToStorageAccount sends an image file to the azure storage account
 func ToStorageAccount(uploadFilename string) {
 
-	accountName, err := utils.GetStorageAccountName()
-	if err != nil {
-		panic(err)
-	}
-
-	accountKey, err := utils.GetStorageAccountKey()
-	if err != nil {
-		panic(err)
-	}
-
-	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
-	if err != nil {
-		log.Fatal("Error creating credential")
-	}
-
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-
-	containerName := "qs-image"
-
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", accountName, containerName))
-
-	containerURL := azblob.NewContainerURL(*URL, p)
-	ctx := context.Background()
-	_, err = containerURL.Create(ctx, azblob.Metadata{}, azblob.PublicAccessNone)
+	containerURL, ctx := initialiseBlob()
+	_, err := containerURL.Create(ctx, azblob.Metadata{}, azblob.PublicAccessNone)
 	handleErrors(err)
 
 	blobURL := containerURL.NewBlockBlobURL(uploadFilename)
@@ -76,6 +53,28 @@ func ToStorageAccount(uploadFilename string) {
 
 // GetAllImageNames returns a list of all images
 func GetAllImageNames() ([]string, error) {
+	containerURL, ctx := initialiseBlob()
+
+	fmt.Println("Listing all blobs in the container")
+
+	result := make([]string, 0)
+
+	for marker := (azblob.Marker{}); marker.NotDone(); {
+		listBlob, err := containerURL.ListBlobsFlatSegment(ctx, marker, azblob.ListBlobsSegmentOptions{})
+		handleErrors(err)
+
+		marker = listBlob.NextMarker
+
+		for _, blobInfo := range listBlob.Segment.BlobItems {
+			fmt.Print(" Blob name: " + blobInfo.Name + "\n")
+			result = append(result, blobInfo.Name)
+		}
+	}
+
+	return result, nil
+}
+
+func initialiseBlob() (azblob.ContainerURL, context.Context) {
 	accountName, err := utils.GetStorageAccountName()
 	if err != nil {
 		panic(err)
@@ -101,25 +100,5 @@ func GetAllImageNames() ([]string, error) {
 	containerURL := azblob.NewContainerURL(*URL, p)
 	ctx := context.Background()
 
-	fmt.Println("Listing all blobs in the container")
-
-	result := make([]string, 0)
-
-	for marker := (azblob.Marker{}); marker.NotDone(); {
-		listBlob, err := containerURL.ListBlobsFlatSegment(ctx, marker, azblob.ListBlobsSegmentOptions{})
-		handleErrors(err)
-
-		marker = listBlob.NextMarker
-
-		for _, blobInfo := range listBlob.Segment.BlobItems {
-			fmt.Print(" Blob name: " + blobInfo.Name + "\n")
-			result = append(result, blobInfo.Name)
-		}
-	}
-
-	return result, nil
-}
-
-func initialiseBlob() {
-
+	return containerURL, ctx
 }
