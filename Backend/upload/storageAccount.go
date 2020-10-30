@@ -11,11 +11,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// func randomString() string {
-// 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-// 	return strconv.Itoa(r.Int())
-// }
-
 func handleErrors(err error) {
 	if err != nil {
 		if serr, ok := err.(azblob.StorageError); ok { // This error is a Service-specific
@@ -77,4 +72,54 @@ func ToStorageAccount(uploadFilename string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// GetAllImageNames returns a list of all images
+func GetAllImageNames() ([]string, error) {
+	accountName, err := utils.GetStorageAccountName()
+	if err != nil {
+		panic(err)
+	}
+
+	accountKey, err := utils.GetStorageAccountKey()
+	if err != nil {
+		panic(err)
+	}
+
+	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
+	if err != nil {
+		log.Fatal("Error creating credential")
+	}
+
+	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
+
+	containerName := "qs-image"
+
+	URL, _ := url.Parse(
+		fmt.Sprintf("https://%s.blob.core.windows.net/%s", accountName, containerName))
+
+	containerURL := azblob.NewContainerURL(*URL, p)
+	ctx := context.Background()
+
+	fmt.Println("Listing all blobs in the container")
+
+	result := make([]string, 0)
+
+	for marker := (azblob.Marker{}); marker.NotDone(); {
+		listBlob, err := containerURL.ListBlobsFlatSegment(ctx, marker, azblob.ListBlobsSegmentOptions{})
+		handleErrors(err)
+
+		marker = listBlob.NextMarker
+
+		for _, blobInfo := range listBlob.Segment.BlobItems {
+			fmt.Print(" Blob name: " + blobInfo.Name + "\n")
+			result = append(result, blobInfo.Name)
+		}
+	}
+
+	return result, nil
+}
+
+func initialiseBlob() {
+
 }

@@ -3,26 +3,22 @@ package images
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 
+	"github.com/davidrbourke/ImageUploader/Backend/upload"
 	"github.com/davidrbourke/ImageUploader/Backend/utils"
 )
 
+// GetImages is the API endpoint for handling image requests
 func GetImages(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(&w)
 
 	fmt.Println("get images endpoint hit")
 
-	files, err := ioutil.ReadDir("./temp-images")
+	fileNames, err := upload.GetAllImageNames()
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	var fileNames []string
-	for _, file := range files {
-		fileNames = append(fileNames, file.Name())
+		w.WriteHeader(500)
+		return
 	}
 
 	json.NewEncoder(w).Encode(fileNames)
