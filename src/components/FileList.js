@@ -5,7 +5,15 @@ const FileList = ({ filenames }) => {
   return (
     <div>
       <ol>
-      {filenames.map((filename) => <li key={filename}>{filename}</li>)}
+      {filenames.map((filename) => {
+        return (
+        <li key={filename.ImageName}>
+          <div>{filename.ImageName}</div>
+          <div>
+            <img src={filename.ImageURL} alt={filename.ImageName} />
+          </div>
+        </li>)})
+      }
       </ol>
     </div>
   )
