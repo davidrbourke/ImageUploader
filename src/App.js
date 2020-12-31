@@ -1,10 +1,9 @@
 import React from 'react';
-import './App.css';
 import FileContext from './components/FileContext';
 
 function App() {
   return (
-    <div className="App">
+    <div className="container">
       <FileContext />
     </div>
   );
