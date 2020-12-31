@@ -1,3 +1,0 @@
-az group create --location "North Europe" --name rg-innov-time
-
- az storage account create --name innovtimeimages --access-tier Hot --kind StorageV2 --location "North Europe" --sku Standard_ZRS --resource-group rg-innov-time

@@ -1,1 +1,0 @@
-Place holder folder for images
