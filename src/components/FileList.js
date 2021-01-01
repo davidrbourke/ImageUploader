@@ -1,9 +1,20 @@
 import React from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
-const FileList = ({ filenames }) => {
+const FileList = ({ filenames, scrolled, isLastSet}) => {
+
   console.log(filenames)
   return (
-    <div>
+    <InfiniteScroll
+      dataLength={filenames.length}
+      next={scrolled}
+      hasMore={!isLastSet}
+      loader={<h4>Loading</h4>}
+      endMessage={
+        <p style={{ textAlign: 'center' }}>
+        <b>No more images to display</b>
+      </p>
+      }>
       {filenames.map((filename) => {
         return (
           <div className="row" key={filename.ImageName}>
@@ -22,7 +33,7 @@ const FileList = ({ filenames }) => {
           </div>)
         })
       }
-    </div>
+    </InfiniteScroll>
   )
 }
 

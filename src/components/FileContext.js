@@ -7,13 +7,17 @@ const FileContext = () => {
 
   const [filenames, setFilenames] = useState([])
   const [isUploaded, setIsUploaded] = useState(false)
+  const [scrollIndex, setScrollIndex] = useState(1)
+  const [scrollListLength, setScrollListLength] = useState(10)
+  const [isLastSet, setIsLastSet] = useState(false)
 
   useEffect(() => {
-    getFilenames()
+    getFilenames(scrollIndex, scrollListLength)
       .then((fileList) => {
-        setFilenames(fileList)
+        setFilenames([...filenames, ...fileList.Images])
+        setIsLastSet(fileList.IsLastSet)
       })
-  }, [isUploaded])
+  }, [isUploaded, scrollIndex])
 
   const onUpload = (form) => {
     return uploadFile(form)
@@ -25,10 +29,15 @@ const FileContext = () => {
       })
   }
 
+  const scrolled = () => {
+    const updScrollIndex = scrollIndex + 1
+    setScrollIndex(updScrollIndex)
+  }
+
   return (
     <>
       <FileUpload onUpload={onUpload} isUploaded={isUploaded} />
-      <FileList filenames={filenames} />
+      <FileList filenames={filenames} scrolled={scrolled} isLastSet={isLastSet} />
     </>
   )
 }

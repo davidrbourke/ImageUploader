@@ -11,12 +11,12 @@ const uploadFile = (formData) => {
     .catch((err) => console.log(err))
 }
 
-const getFilenames = () => {
+const getFilenames = (index, length) => {
   const options = {
     method: "GET"
   }
 
-  return fetch(`${baseUrl}/images`, options)
+  return fetch(`${baseUrl}/images?index=${index}&length=${length}`, options)
     .then((res) => res.json())
     .catch((err) => console.log(err))
 }
